@@ -69,7 +69,7 @@ The cleaned text is passed to a LangChain `ChatPromptTemplate` which structures 
 The parsed JSON is validated and coerced into the `ArticleInsight` Pydantic model defined in `models.py`, which enforces the expected fields and types. FastAPI automatically serializes this as the final structured JSON response.
  
 ## Here's a diagram describing the Data Flow:
-![Data Flow](Images/Screenshot 2026-06-27 032020.png)
+![Data Flow](images/diagram.png)
  
 ## For running on localhost:
  
