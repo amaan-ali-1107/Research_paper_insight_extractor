@@ -1,6 +1,6 @@
-# Life Sciences Research Article Insight Extractor
+# GenAI-Powered Research Paper Insight Extractor
  
-Reading and interpreting research papers in life sciences can be time-consuming and complex, especially when trying to quickly grasp key findings, methodology, and conclusions!
+Reading and interpreting research papers in life sciences can be time consuming and complex, especially when trying to quickly grasp key findings, methodology, and conclusions!
  
 So I present my project, the Life Sciences Research Article Insight Extractor, a GenAI-powered REST API built using FastAPI, LangChain, and Google Gemini. It accepts a research paper PDF as input and returns a structured JSON response containing comprehensive insights extracted and analyzed by an LLM.
  
@@ -62,14 +62,14 @@ Life_science_Insights/
  
 ## How It Works:
  
-The user uploads a life sciences research paper PDF to the `/extract` endpoint. PyMuPDF (`fitz`) reads the PDF bytes directly from memory — no temporary files needed — and extracts the full text page by page. The text is then preprocessed: blank lines are stripped, and papers exceeding 12,000 words are trimmed to prevent LLM token overflow while preserving key content.
+The user uploads a life sciences research paper PDF to the `/extract` endpoint. PyMuPDF (`fitz`) reads the PDF bytes directly from memory, no temporary files needed and extracts the full text page by page. The text is then preprocessed: blank lines are stripped, and papers exceeding 12,000 words are trimmed to prevent LLM token overflow while preserving key content.
  
-The cleaned text is passed to a LangChain `ChatPromptTemplate` which structures a detailed system + human prompt. This chain is invoked against Google Gemini (`gemini-2.0-flash`), instructing the model to respond with raw JSON only. Since Gemini occasionally wraps output in markdown code blocks, a cleaning step strips those before parsing.
+The cleaned text is passed to a LangChain `ChatPromptTemplate` which structures a detailed system + human prompt. This chain is invoked against Google Gemini (`gemini-3.5-flash`), instructing the model to respond with raw JSON only. Since Gemini occasionally wraps output in markdown code blocks, a cleaning step strips those before parsing.
  
 The parsed JSON is validated and coerced into the `ArticleInsight` Pydantic model defined in `models.py`, which enforces the expected fields and types. FastAPI automatically serializes this as the final structured JSON response.
  
 ## Here's a diagram describing the Data Flow:
-![Data Flow](images/data_flow.png)
+![Data Flow](Images/Screenshot 2026-06-27 032020.png)
  
 ## For running on localhost:
  
@@ -87,9 +87,9 @@ The parsed JSON is validated and coerced into the `ArticleInsight` Pydantic mode
 - To test with a real PDF, run: `python test_api.py path/to/your/paper.pdf`.
 ## Challenges Faced and Things Learned:
  
-Since this was my first Generative AI project, the biggest challenge was understanding how to bridge unstructured LLM output with a strict typed schema. LLMs like Gemini do not always return clean JSON — the model would sometimes wrap its response in markdown code blocks (` ```json ... ``` `), causing `json.loads()` to fail. I solved this by writing a `clean_json_response()` function using regex to detect and strip those code fences before parsing, which made the pipeline robust across different response formats.
+Since this was my first Generative AI project, the biggest challenge was understanding how to bridge unstructured LLM output with a strict typed schema. LLMs like Gemini do not always return clean JSON, the model would sometimes wrap its response in markdown code blocks (` ```json ... ``` `), causing `json.loads()` to fail. I solved this by writing a `clean_json_response()` function using regex to detect and strip those code fences before parsing, which made the pipeline robust across different response formats.
  
-Prompt engineering also turned out to be more nuanced than I expected. Getting Gemini to consistently return all required fields — especially the creative ones like `related_hypotheses` and `novelty_assessment` — required being very explicit in the system message and providing the exact JSON schema in the human message. I learned that instructions like "Respond with raw JSON only. Start your response directly with `{` and end with `}`" are essential to avoid non-JSON preambles that break parsing.
+Prompt engineering also turned out to be more nuanced than I expected. Getting Gemini to consistently return all required fields, especially the creative ones like `related_hypotheses` and `novelty_assessment`, required being very explicit in the system message and providing the exact JSON schema in the human message. I learned that instructions like "Respond with raw JSON only. Start your response directly with `{` and end with `}`" are essential to avoid non JSON preambles that break parsing.
  
 Another key learning was PDF preprocessing. Academic papers can be very long, and sending the entire extracted text to the LLM risks exceeding the model's context window. I implemented a word count check that trims the text to 12,000 words with a note appended, ensuring the API handles large papers gracefully without crashing. This also reinforced the importance of input validation — the API checks that the uploaded file is actually a PDF and that enough text was extracted before even calling the LLM.
  
