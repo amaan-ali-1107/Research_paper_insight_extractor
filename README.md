@@ -1,4 +1,4 @@
-# GenAI-Powered Research Paper Insight Extractor
+# GenAI-Powered Research Paper Insight Extractor API
  
 Reading and interpreting research papers in life sciences can be time consuming and complex, especially when trying to quickly grasp key findings, methodology, and conclusions!
  
@@ -91,6 +91,6 @@ Since this was my first Generative AI project, the biggest challenge was underst
  
 Prompt engineering also turned out to be more nuanced than I expected. Getting Gemini to consistently return all required fields, especially the creative ones like `related_hypotheses` and `novelty_assessment`, required being very explicit in the system message and providing the exact JSON schema in the human message. I learned that instructions like "Respond with raw JSON only. Start your response directly with `{` and end with `}`" are essential to avoid non JSON preambles that break parsing.
  
-Another key learning was PDF preprocessing. Academic papers can be very long, and sending the entire extracted text to the LLM risks exceeding the model's context window. I implemented a word count check that trims the text to 12,000 words with a note appended, ensuring the API handles large papers gracefully without crashing. This also reinforced the importance of input validation — the API checks that the uploaded file is actually a PDF and that enough text was extracted before even calling the LLM.
+Another key learning was PDF preprocessing. Academic papers can be very long, and sending the entire extracted text to the LLM risks exceeding the model's context window. I implemented a word count check that trims the text to 12,000 words with a note appended, ensuring the API handles large papers gracefully without crashing. This also reinforced the importance of input validation, the API checks that the uploaded file is actually a PDF and that enough text was extracted before even calling the LLM.
  
 Finally, structuring the project into four clearly separated files (`main.py`, `models.py`, `llm_service.py`, `pdf_extractor.py`) taught me the value of separation of concerns in API design. Each module has one job, which made debugging and iterating on the prompt much easier without touching unrelated code.
